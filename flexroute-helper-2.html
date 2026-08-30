@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FlexRoute Helper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Leaflet for map -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+  <style>
+    :root {
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.75rem;
+
+      --color-bg: #0f172a;
+      --color-bg-gradient-top: #0b1120;
+      --color-bg-gradient-bottom: #111827;
+
+      --color-surface: #111827;
+      --color-surface-2: #1f2937;
+      --color-border: #374151;
+
+      --color-text: #e5e7eb;
+      --color-text-muted: #9ca3af;
+      --color-primary: #ff9900;
+      --color-primary-hover: #f97316;
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+      --shadow-md: 0 12px 32px rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: var(--space-4);
+      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", system-ui, sans-serif;
+      background: radial-gradient(circle at top, var(--color-bg-gradient-top), var(--color-bg-gradient-bottom));
+      color: var(--color-text);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      border-radius: 999px;
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111827;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      letter-spacing: 0.03em;
+      margin: 0;
+    }
+
+    .app {
+      background: linear-gradient(135deg, rgba(17,24,39,0.96), rgba(15,23,42,0.98));
+      border-radius: 1.5rem;
+      border: 1px solid rgba(55,65,81,0.9);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-4);
+    }
+
+    .layout-cols {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: flex-start;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: var(--space-2); }
+      .app { border-radius: 1.25rem; }
+      .layout-cols {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .field { margin-bottom: var(--space-4); }
+
+    label {
+      display: block;
+      margin-bottom: var(--space-1);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+    }
+
+    .combo {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      background: #020617;
+      color: var(--color-text);
+      font: inherit;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-3);
+      border-radius: 999px;
+      border: none;
+      background: var(--color-primary);
+      color: #111827;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    button:hover { background: var(--color-primary-hover); }
+    button:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+
+    .small-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      box-shadow: none;
+      background: #1d4ed8;
+      color: #e5e7eb;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin: var(--space-1) 0 0;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
+      min-height: 1.2em;
+    }
+
+    .panel {
+      margin-top: var(--space-4);
+      padding: var(--space-3);
+      border-radius: 1rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+    }
+
+    .panel h2 {
+      font-size: 1rem;
+      margin: 0 0 var(--space-2);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-text);
+    }
+
+    .panel p {
+      margin: 0 0 var(--space-2);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--space-2);
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      padding: var(--space-2);
+      border-bottom: 1px solid rgba(55,65,81,0.8);
+      text-align: left;
+    }
+
+    th {
+      background: var(--color-surface-2);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr.error-row { background: rgba(127,29,29,0.35); }
+
+    .results-list {
+      margin-top: var(--space-2);
+      padding-left: 1.2rem;
+    }
+
+    .results-list li {
+      margin-bottom: var(--space-2);
+      font-size: 0.9rem;
+    }
+
+    .results-list input[type="checkbox"] {
+      margin-right: var(--space-1);
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+    }
+
+    #map {
+      height: 320px;
+      margin-top: var(--space-3);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+    }
+
+    .results-actions {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .results-actions button {
+      font-size: 0.8rem;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+      }
+      .app-shell {
+        max-width: 800px;
+      }
+      #map { display: none !important; }
+      .app-header,
+      #routeForm,
+      #validationPanel,
+      .results-actions {
+        display: none !important;
+      }
+      .app {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+      }
+      #resultsPanel {
+        background: #ffffff;
+        border: none;
+        color: #000000;
+      }
+      #resultsPanel h2,
+      #resultsPanel p,
+      #resultsPanel li {
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="logo-mark">
+        <div class="logo-icon">FR</div>
+        <div><h1>FlexRoute Helper</h1></div>
+      </div>
+    </header>
+
+    <div class="app">
+      <div class="layout-cols">
+        <div>
+          <form id="routeForm">
+            <div class="field">
+              <label for="origin">Start location (work / warehouse)</label>
+              <div class="combo">
+                <input id="origin" type="text" list="originList" placeholder="e.g. Amazon warehouse, Jasper, IN">
+                <button type="button" class="small-btn" id="saveOriginBtn">Save</button>
+              </div>
+              <datalist id="originList"></datalist>
+            </div>
+
+            <div class="field">
+              <label for="destination">Final destination (home)</label>
+              <div class="combo">
+                <input id="destination" type="text" list="destinationList" placeholder="e.g. Home address">
+                <button type="button" class="small-btn" id="saveDestinationBtn">Save</button>
+              </div>
+              <datalist id="destinationList"></datalist>
+            </div>
+
+            <div class="field">
+              <label for="screenshot">Flex itinerary screenshot(s) (optional)</label>
+              <input id="screenshot" type="file" accept="image/*" multiple>
+              <p class="hint">You can select several screenshots at once (e.g. tap Photos, select multiple). Each is OCR'd separately and appended below.</p>
+            </div>
+
+            <div class="buttons">
+              <button type="button" id="ocrBtn">Run OCR</button>
+            </div>
+
+            <div class="field">
+              <label for="addresses">Addresses (one stop per line)</label>
+              <textarea id="addresses" placeholder="123 Main St, City, ST 12345
+456 Oak Ave, City, ST 23456
+..."></textarea>
+            </div>
+
+            <div class="buttons">
+              <button type="button" id="geocodeBtn">Geocode &amp; Check</button>
+              <button type="button" id="optimizeBtn" disabled>Optimize Route</button>
+            </div>
+            <div class="status" id="status"></div>
+          </form>
+
+          <div id="validationPanel" class="panel" style="display:none;">
+            <h2>Address Check</h2>
+            <p>Fix any rows marked as not found, then tap Retry on that row. When everything looks good, tap Optimize Route.</p>
+            <table id="validationTable">
+              <thead>
+                <tr>
+                  <th>Original #</th>
+                  <th>Address</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div id="resultsPanel" class="panel" style="display:none;">
+            <h2>Optimized Stop Order</h2>
+            <p class="status" id="summary"></p>
+            <ol id="resultsList" class="results-list"></ol>
+            <div class="results-actions">
+              <button type="button" id="printBtn">Print / PDF Route</button>
+              <button type="button" id="resetBtn">Clear Session</button>
+            </div>
+          </div>
+          <div id="map" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- Tesseract.js v5 for OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <script>
+    var statusEl = document.getElementById('status');
+    var geocodeBtn = document.getElementById('geocodeBtn');
+    var optimizeBtn = document.getElementById('optimizeBtn');
+    var printBtn = document.getElementById('printBtn');
+    var resetBtn = document.getElementById('resetBtn');
+    var ocrBtn = document.getElementById('ocrBtn');
+
+    var originInput = document.getElementById('origin');
+    var destinationInput = document.getElementById('destination');
+    var originList = document.getElementById('originList');
+    var destinationList = document.getElementById('destinationList');
+    var saveOriginBtn = document.getElementById('saveOriginBtn');
+    var saveDestinationBtn = document.getElementById('saveDestinationBtn');
+
+    var originFavorites = [];
+    var destinationFavorites = [];
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function sleep(ms) {
+      return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    }
+
+    function addFavoriteAddress(listArr, listEl, value) {
+      var trimmed = value.trim();
+      if (!trimmed) return;
+      if (listArr.indexOf(trimmed) !== -1) return;
+      listArr.push(trimmed);
+      var opt = document.createElement('option');
+      opt.value = trimmed;
+      listEl.appendChild(opt);
+    }
+
+    saveOriginBtn.addEventListener('click', function () {
+      addFavoriteAddress(originFavorites, originList, originInput.value);
+      statusEl.textContent = 'Start location saved for this session.';
+    });
+
+    saveDestinationBtn.addEventListener('click', function () {
+      addFavoriteAddress(destinationFavorites, destinationList, destinationInput.value);
+      statusEl.textContent = 'Final destination saved for this session.';
+    });
+
+    var originPoint = null;
+    var destinationPoint = null;
+    var stops = []; // { originalIndex, rawText, lat, lon, status }
+
+    // --- OCR (multi-image) ---
+    // iOS Safari caps canvas size at roughly 4096px per dimension and
+    // ~16.7 megapixels total. Instead of relying on one giant stitched
+    // screenshot, the file input now accepts multiple images (e.g. several
+    // shorter screenshots covering the full route). Each image is OCR'd
+    // separately and its text appended into the textarea, so you never
+    // hit the canvas ceiling.
+    var MAX_DIMENSION = 4000;
+    var MAX_TOTAL_PIXELS = 16000000;
+
+    function loadImageFromFile(file) {
+      return new Promise(function (resolve, reject) {
+        var img = new Image();
+        img.onload = function () { resolve(img); };
+        img.onerror = function () { reject(new Error('Could not read image file.')); };
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    function resizeImageToCanvas(img) {
+      var width = img.naturalWidth || img.width;
+      var height = img.naturalHeight || img.height;
+
+      var scale = 1;
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        scale = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+      }
+      var totalPixels = (width * scale) * (height * scale);
+      if (totalPixels > MAX_TOTAL_PIXELS) {
+        var extraScale = Math.sqrt(MAX_TOTAL_PIXELS / totalPixels);
+        scale = scale * extraScale;
+      }
+
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(width * scale));
+      canvas.height = Math.max(1, Math.round(height * scale));
+
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      return canvas;
+    }
+
+    async function ocrSingleFile(file, worker) {
+      var objectUrl;
+      try {
+        var img = await loadImageFromFile(file);
+        objectUrl = img.src;
+        var canvas = resizeImageToCanvas(img);
+        var result = await worker.recognize(canvas);
+        var text = (result && result.data && result.data.text) ? result.data.text : '';
+        return { ok: true, text: text };
+      } catch (e) {
+        console.error(e);
+        return { ok: false, text: '' };
+      } finally {
+        if (objectUrl) {
+          try { URL.revokeObjectURL(objectUrl); } catch (e2) { /* ignore */ }
+        }
+      }
+    }
+
+    ocrBtn.addEventListener('click', function () {
+      var fileInput = document.getElementById('screenshot');
+      var textarea = document.getElementById('addresses');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        statusEl.textContent = 'Select one or more screenshots first.';
+        return;
+      }
+      if (typeof Tesseract === 'undefined') {
+        statusEl.textContent = 'OCR library failed to load. Check your internet connection and reload.';
+        return;
+      }
+
+      var files = Array.prototype.slice.call(fileInput.files);
+      ocrBtn.disabled = true;
+
+      (async function () {
+        var worker;
+        var combinedSections = [];
+        var failCount = 0;
+
+        try {
+          worker = await Tesseract.createWorker('eng');
+
+          for (var i = 0; i < files.length; i++) {
+            statusEl.textContent = 'Running OCR on image ' + (i + 1) + ' of ' + files.length + '…';
+            var outcome = await ocrSingleFile(files[i], worker);
+            if (outcome.ok && outcome.text.trim()) {
+              combinedSections.push(outcome.text.trim());
+            } else if (!outcome.ok) {
+              failCount++;
+            }
+          }
+
+          var combinedText = combinedSections.join('\n');
+          if (combinedText) {
+            var existing = textarea.value.trim();
+            textarea.value = existing ? (existing + '\n' + combinedText) : combinedText;
+          }
+
+          if (failCount === 0 && combinedSections.length === files.length) {
+            statusEl.textContent = 'OCR complete on ' + files.length + ' image(s). Clean up the text so each stop is on its own line.';
+          } else if (combinedSections.length > 0) {
+            statusEl.textContent = 'OCR complete on ' + combinedSections.length + ' of ' + files.length +
+              ' image(s) (' + failCount + ' failed). Clean up the text, then re-try any missing images individually.';
+          } else {
+            statusEl.textContent = 'OCR found no readable text in any image. Try clearer or shorter screenshots.';
+          }
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent = 'OCR failed to start. Check your internet connection and try again.';
+        } finally {
+          if (worker) {
+            try { await worker.terminate(); } catch (e2) { /* ignore */ }
+          }
+          ocrBtn.disabled = false;
+        }
+      })();
+    });
+
+    // --- Geocoding helpers ---
+    async function geocodeQuery(query) {
+      var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&q=' +
+                  encodeURIComponent(query);
+      var res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) return null;
+      var data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) return null;
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+    }
+
+    async function geocodePoint(label, query) {
+      var result = await geocodeQuery(query);
+      if (!result) {
+        return { label: label, query: query, lat: null, lon: null, status: 'not-found' };
+      }
+      return { label: label, query: query, lat: result.lat, lon: result.lon, status: 'ok' };
+    }
+
+    async function geocodeStop(stop) {
+      var result = await geocodeQuery(stop.rawText);
+      if (!result) {
+        stop.lat = null;
+        stop.lon = null;
+        stop.status = 'not-found';
+      } else {
+        stop.lat = result.lat;
+        stop.lon = result.lon;
+        stop.status = 'ok';
+      }
+      return stop;
+    }
+
+    // Nominatim's public usage policy caps requests at roughly 1/second.
+    // We geocode sequentially and pause between calls to stay within that limit.
+    async function geocodeAllStops(stopsArr) {
+      for (var i = 0; i < stopsArr.length; i++) {
+        var stop = stopsArr[i];
+        statusEl.textContent = 'Geocoding stop ' + (i + 1) + '/' + stopsArr.length + '…';
+        await geocodeStop(stop);
+        await sleep(1100);
+      }
+    }
+
+    function checkReadyToOptimize() {
+      var originOk = originPoint && originPoint.status === 'ok';
+      var destOk = destinationPoint && destinationPoint.status === 'ok';
+      var stopsOk = stops.length > 0 && stops.every(function (s) { return s.status === 'ok'; });
+      var ready = originOk && destOk && stopsOk;
+      optimizeBtn.disabled = !ready;
+      return ready;
+    }
+
+    // --- Distance & route ---
+    function distanceKm(a, b) {
+      function toRad(deg) { return deg * Math.PI / 180; }
+      var R = 6371;
+      var dLat = toRad(b.lat - a.lat);
+      var dLon = toRad(b.lon - a.lon);
+      var lat1 = toRad(a.lat);
+      var lat2 = toRad(b.lat);
+      var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      var c = 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+      return R * c;
+    }
+
+    function buildRoute(originPt, destinationPt, stopsArr) {
+      var remaining = stopsArr.slice();
+      var orderedStops = [];
+      var current = originPt;
+      while (remaining.length > 0) {
+        var bestIdx = 0;
+        var bestDist = Infinity;
+        for (var i = 0; i < remaining.length; i++) {
+          var d = distanceKm(current, remaining[i]);
+          if (d < bestDist) {
+            bestDist = d;
+            bestIdx = i;
+          }
+        }
+        var next = remaining.splice(bestIdx, 1)[0];
+        orderedStops.push(next);
+        current = next;
+      }
+      return { origin: originPt, stops: orderedStops, destination: destinationPt };
+    }
+
+    // --- Validation table ---
+    var validationPanel = document.getElementById('validationPanel');
+    var validationTableBody = document.querySelector('#validationTable tbody');
+
+    function renderValidationTable() {
+      validationTableBody.innerHTML = '';
+      stops.forEach(function (stop, idx) {
+        var tr = document.createElement('tr');
+        if (stop.status !== 'ok') tr.classList.add('error-row');
+        var statusText = stop.status === 'ok' ? 'OK' : 'Address not found – correct and retry.';
+        tr.innerHTML =
+          '<td>' + stop.originalIndex + '</td>' +
+          '<td><input type="text" value="' + escapeHtml(stop.rawText) +
+          '" data-stop-index="' + idx + '"></td>' +
+          '<td>' + statusText + '</td>' +
+          '<td><button type="button" class="small-btn" data-retry-index="' + idx + '">Retry</button></td>';
+        validationTableBody.appendChild(tr);
+      });
+      validationPanel.style.display = 'block';
+    }
+
+    validationTableBody.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-retry-index]');
+      if (!btn) return;
+      var idx = parseInt(btn.getAttribute('data-retry-index'), 10);
+      var input = validationTableBody.querySelector('input[data-stop-index="' + idx + '"]');
+      var stop = stops[idx];
+      stop.rawText = input.value.trim();
+      stop.status = 'pending';
+      btn.disabled = true;
+      statusEl.textContent = 'Retrying geocode for original #' + stop.originalIndex + '…';
+      (async function () {
+        await geocodeStop(stop);
+        renderValidationTable();
+        var ready = checkReadyToOptimize();
+        statusEl.textContent = ready
+          ? 'Geocode retry complete. All addresses look good — optimize when ready.'
+          : 'Geocode retry complete. Some rows still need attention before optimizing.';
+      })();
+    });
+
+    // --- Geocode & Check button ---
+    geocodeBtn.addEventListener('click', function () {
+      var originText = originInput.value.trim();
+      var destText = destinationInput.value.trim();
+      var raw = document.getElementById('addresses').value || '';
+
+      if (!originText || !destText) {
+        statusEl.textContent = 'Fill in both start and final destination.';
+        return;
+      }
+
+      var lines = raw.split(/\r?\n/)
+        .map(function (l) { return l.trim(); })
+        .filter(function (l) { return l.length > 0; });
+
+      if (lines.length === 0) {
+        statusEl.textContent = 'Provide at least one stop address (via OCR or manual input).';
+        return;
+      }
+
+      geocodeBtn.disabled = true;
+      optimizeBtn.disabled = true;
+      statusEl.textContent = 'Geocoding start, end, and stops…';
+
+      (async function () {
+        try {
+          originPoint = await geocodePoint('Start', originText);
+          await sleep(1100);
+          destinationPoint = await geocodePoint('End', destText);
+          await sleep(1100);
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent = 'Error geocoding start/end. Check your connection and try again.';
+          geocodeBtn.disabled = false;
+          return;
+        }
+
+        stops = lines.map(function (line, index) {
+          return {
+            originalIndex: index + 1,
+            rawText: line,
+            lat: null,
+            lon: null,
+            status: 'pending'
+          };
+        });
+
+        try {
+          await geocodeAllStops(stops);
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent = 'Error geocoding stops. Check your connection and try again.';
+          geocodeBtn.disabled = false;
+          renderValidationTable();
+          return;
+        }
+
+        var issues = [];
+        if (originPoint.status !== 'ok') issues.push('Start location not found');
+        if (destinationPoint.status !== 'ok') issues.push('Final destination not found');
+        var badStops = stops.filter(function (s) { return s.status !== 'ok'; });
+
+        if (issues.length || badStops.length) {
+          var msg = 'Geocoding complete, but issues found: ';
+          if (issues.length) msg += issues.join(', ') + '. ';
+          if (badStops.length) msg += badStops.length + ' stop(s) need attention below.';
+          statusEl.textContent = msg;
+        } else {
+          statusEl.textContent = 'All addresses look good. Optimize the route when ready.';
+        }
+
+        renderValidationTable();
+        checkReadyToOptimize();
+        geocodeBtn.disabled = false;
+      })();
+    });
+
+    // --- Optimize Route button ---
+    var resultsPanel = document.getElementById('resultsPanel');
+    var resultsList = document.getElementById('resultsList');
+    var summaryEl = document.getElementById('summary');
+
+    optimizeBtn.addEventListener('click', function () {
+      if (!checkReadyToOptimize()) {
+        statusEl.textContent = 'Fix all address issues before optimizing.';
+        return;
+      }
+
+      var validStops = stops.filter(function (s) { return s.status === 'ok'; });
+      if (validStops.length === 0) {
+        statusEl.textContent = 'No valid stops to optimize. Fix addresses.';
+        return;
+      }
+
+      var route = buildRoute(originPoint, destinationPoint, validStops);
+
+      resultsList.innerHTML = '';
+
+      var startLi = document.createElement('li');
+      startLi.textContent = 'Start at: ' + originPoint.query;
+      resultsList.appendChild(startLi);
+
+      route.stops.forEach(function (stop, idx) {
+        var li = document.createElement('li');
+        li.innerHTML =
+          '<label>' +
+          '<input type="checkbox" data-stop-id="' + stop.originalIndex + '">' +
+          '<strong>New order #' + (idx + 1) + '.</strong> ' +
+          'Original #' + stop.originalIndex + ' – ' + escapeHtml(stop.rawText) +
+          '</label>';
+        resultsList.appendChild(li);
+      });
+
+      var endLi = document.createElement('li');
+      endLi.textContent = 'Finish at: ' + destinationPoint.query;
+      resultsList.appendChild(endLi);
+
+      summaryEl.textContent = route.stops.length + ' stop(s) optimized (start and end fixed).';
+      resultsPanel.style.display = 'block';
+      statusEl.textContent = 'Route optimized.';
+
+      renderRouteOnMap(route);
+    });
+
+    // --- Print / PDF ---
+    printBtn.addEventListener('click', function () {
+      if (resultsPanel.style.display !== 'block') {
+        statusEl.textContent = 'Optimize a route first, then you can print it.';
+        return;
+      }
+      window.print();
+    });
+
+    // --- Reset session ---
+    resetBtn.addEventListener('click', function () {
+      originInput.value = '';
+      destinationInput.value = '';
+      document.getElementById('addresses').value = '';
+      document.getElementById('screenshot').value = '';
+      statusEl.textContent = '';
+      originPoint = null;
+      destinationPoint = null;
+      stops = [];
+      validationPanel.style.display = 'none';
+      resultsPanel.style.display = 'none';
+      resultsList.innerHTML = '';
+      summaryEl.textContent = '';
+      optimizeBtn.disabled = true;
+      geocodeBtn.disabled = false;
+      if (map) {
+        map.remove();
+        map = null;
+        routeLayer = null;
+        markerLayerGroup = null;
+      }
+      document.getElementById('map').style.display = 'none';
+      originFavorites = [];
+      destinationFavorites = [];
+      originList.innerHTML = '';
+      destinationList.innerHTML = '';
+    });
+
+    // --- Map / Leaflet ---
+    var map = null;
+    var routeLayer = null;
+    var markerLayerGroup = null;
+
+    function initMap() {
+      if (!map) {
+        map = L.map('map', { center: [39.8283, -98.5795], zoom: 4 });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+      }
+      document.getElementById('map').style.display = 'block';
+      map.invalidateSize();
+    }
+
+    function renderRouteOnMap(route) {
+      initMap();
+
+      var allPoints = [route.origin].concat(route.stops).concat([route.destination]);
+      var latlngs = allPoints.map(function (p) { return [p.lat, p.lon]; });
+
+      if (routeLayer) {
+        routeLayer.remove();
+        routeLayer = null;
+      }
+      if (markerLayerGroup) {
+        markerLayerGroup.remove();
+        markerLayerGroup = null;
+      }
+
+      markerLayerGroup = L.layerGroup().addTo(map);
+
+      allPoints.forEach(function (p, idx) {
+        var label;
+        if (idx === 0) label = 'S';
+        else if (idx === allPoints.length - 1) label = 'E';
+        else label = String(idx);
+
+        var isEndpoint = (idx === 0 || idx === allPoints.length - 1);
+        var marker = L.marker([p.lat, p.lon], {
+          icon: L.divIcon({
+            className: 'route-marker',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            html:
+              '<div style="' +
+              'background:' + (isEndpoint ? '#1d4ed8' : '#ff9900') + ';' +
+              'color:#020617;' +
+              'border-radius:999px;' +
+              'width:24px;height:24px;' +
+              'display:flex;align-items:center;justify-content:center;' +
+              'font-size:0.8rem;font-weight:700;">' +
+              escapeHtml(label) +
+              '</div>'
+          })
+        });
+        marker.addTo(markerLayerGroup);
+      });
+
+      routeLayer = L.polyline(latlngs, { color: '#f97316', weight: 3 }).addTo(map);
+      var bounds = L.latLngBounds(latlngs);
+      map.fitBounds(bounds, { padding: [20, 20] });
+    }
+  </script>
+</body>
+</html>
