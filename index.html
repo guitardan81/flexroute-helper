@@ -5,7 +5,6 @@
   <title>FlexRoute Helper</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Leaflet for map -->
   <link rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -53,15 +52,8 @@
       justify-content: center;
     }
 
-    .app-shell {
-      width: 100%;
-      max-width: 1100px;
-    }
-
-    .app-header {
-      text-align: center;
-      margin-bottom: var(--space-4);
-    }
+    .app-shell { width: 100%; max-width: 1100px; }
+    .app-header { text-align: center; margin-bottom: var(--space-4); }
 
     .logo-mark {
       display: inline-flex;
@@ -75,23 +67,13 @@
     }
 
     .logo-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+      width: 28px; height: 28px; border-radius: 50%;
       background: var(--color-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #111827;
-      font-weight: 800;
-      font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      color: #111827; font-weight: 800; font-size: 0.9rem;
     }
 
-    h1 {
-      font-size: 1.9rem;
-      letter-spacing: 0.03em;
-      margin: 0;
-    }
+    h1 { font-size: 1.9rem; letter-spacing: 0.03em; margin: 0; }
 
     .app {
       background: linear-gradient(135deg, rgba(17,24,39,0.96), rgba(15,23,42,0.98));
@@ -111,9 +93,7 @@
     @media (max-width: 768px) {
       body { padding: var(--space-2); }
       .app { border-radius: 1.25rem; }
-      .layout-cols {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      .layout-cols { grid-template-columns: minmax(0, 1fr); }
     }
 
     .field { margin-bottom: var(--space-4); }
@@ -128,11 +108,7 @@
       color: var(--color-text-muted);
     }
 
-    .combo {
-      display: flex;
-      gap: var(--space-2);
-      align-items: center;
-    }
+    .combo { display: flex; gap: var(--space-2); align-items: center; }
 
     input[type="text"],
     textarea,
@@ -147,15 +123,9 @@
     }
 
     input::placeholder,
-    textarea::placeholder {
-      color: #6b7280;
-      font-size: 0.85rem;
-    }
+    textarea::placeholder { color: #6b7280; font-size: 0.85rem; }
 
-    textarea {
-      min-height: 160px;
-      resize: vertical;
-    }
+    textarea { min-height: 160px; resize: vertical; }
 
     .buttons {
       display: flex;
@@ -195,13 +165,14 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       white-space: nowrap;
+      margin: 2px;
+      flex-shrink: 0;
     }
 
-    .hint {
-      font-size: 0.75rem;
-      color: var(--color-text-muted);
-      margin: var(--space-1) 0 0;
-    }
+    .small-btn.danger { background: #b91c1c; }
+    .small-btn.secondary { background: #374151; }
+
+    .hint { font-size: 0.75rem; color: var(--color-text-muted); margin: var(--space-1) 0 0; }
 
     .status {
       font-size: 0.8rem;
@@ -226,11 +197,7 @@
       color: var(--color-text);
     }
 
-    .panel p {
-      margin: 0 0 var(--space-2);
-      font-size: 0.85rem;
-      color: var(--color-text-muted);
-    }
+    .panel p { margin: 0 0 var(--space-2); font-size: 0.85rem; color: var(--color-text-muted); }
 
     table {
       width: 100%;
@@ -254,21 +221,34 @@
 
     tr.error-row { background: rgba(127,29,29,0.35); }
 
-    .results-list {
-      margin-top: var(--space-2);
-      padding-left: 1.2rem;
-    }
-
-    .results-list li {
-      margin-bottom: var(--space-2);
-      font-size: 0.9rem;
-    }
-
+    .results-list { margin-top: var(--space-2); padding-left: 1.2rem; }
+    .results-list li { margin-bottom: var(--space-2); font-size: 0.9rem; }
     .results-list input[type="checkbox"] {
       margin-right: var(--space-1);
       width: 16px;
       height: 16px;
       accent-color: var(--color-primary);
+    }
+
+    #reviewList {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #reviewList li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid rgba(55,65,81,0.6);
+    }
+
+    #reviewList li:last-child { border-bottom: none; }
+
+    .review-line-input {
+      flex: 1;
+      min-width: 0;
     }
 
     #map {
@@ -280,47 +260,23 @@
       border: 1px solid var(--color-border);
     }
 
-    .results-actions {
-      display: flex;
-      gap: var(--space-2);
-      margin-top: var(--space-2);
-      flex-wrap: wrap;
-    }
-
-    .results-actions button {
-      font-size: 0.8rem;
-    }
+    .results-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); flex-wrap: wrap; }
+    .results-actions button { font-size: 0.8rem; }
 
     @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-      }
-      .app-shell {
-        max-width: 800px;
-      }
+      body { background: #ffffff; color: #000000; }
+      .app-shell { max-width: 800px; }
       #map { display: none !important; }
       .app-header,
       #routeForm,
       #validationPanel,
-      .results-actions {
-        display: none !important;
-      }
-      .app {
-        box-shadow: none;
-        border: none;
-        padding: 0;
-      }
-      #resultsPanel {
-        background: #ffffff;
-        border: none;
-        color: #000000;
-      }
+      #reviewPanel,
+      .results-actions { display: none !important; }
+      .app { box-shadow: none; border: none; padding: 0; }
+      #resultsPanel { background: #ffffff; border: none; color: #000000; }
       #resultsPanel h2,
       #resultsPanel p,
-      #resultsPanel li {
-        color: #000000 !important;
-      }
+      #resultsPanel li { color: #000000 !important; }
     }
   </style>
 </head>
@@ -358,7 +314,7 @@
             <div class="field">
               <label for="screenshot">Flex itinerary screenshot(s) (optional)</label>
               <input id="screenshot" type="file" accept="image/*" multiple>
-              <p class="hint">You can select several screenshots at once (e.g. tap Photos, select multiple). Each is OCR'd separately and appended below.</p>
+              <p class="hint">Select several shorter screenshots at once instead of one long scrolling capture.</p>
             </div>
 
             <div class="buttons">
@@ -373,15 +329,26 @@
             </div>
 
             <div class="buttons">
+              <button type="button" id="reviewLinesBtn">Review Lines</button>
               <button type="button" id="geocodeBtn">Geocode &amp; Check</button>
               <button type="button" id="optimizeBtn" disabled>Optimize Route</button>
             </div>
             <div class="status" id="status"></div>
           </form>
 
+          <div id="reviewPanel" class="panel" style="display:none;">
+            <h2>Review OCR Lines</h2>
+            <p>Edit any line to fix an obvious mistake (wrong number, mangled street name), or tap Delete to remove junk (timestamps, headers, stop counts) before it ever gets geocoded. Tap "Use These Lines" when ready.</p>
+            <ul id="reviewList"></ul>
+            <div class="buttons" style="margin-top: var(--space-2);">
+              <button type="button" id="applyReviewBtn">Use These Lines</button>
+              <button type="button" class="small-btn secondary" id="cancelReviewBtn">Cancel</button>
+            </div>
+          </div>
+
           <div id="validationPanel" class="panel" style="display:none;">
             <h2>Address Check</h2>
-            <p>Fix any rows marked as not found, then tap Retry on that row. When everything looks good, tap Optimize Route.</p>
+            <p>Fix rows marked as not found and tap Retry, or tap Delete to remove any remaining bad rows. When everything looks good, tap Optimize Route.</p>
             <table id="validationTable">
               <thead>
                 <tr>
@@ -412,12 +379,10 @@
     </div>
   </div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossorigin=""></script>
 
-  <!-- Tesseract.js v5 for OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <script>
@@ -427,6 +392,9 @@
     var printBtn = document.getElementById('printBtn');
     var resetBtn = document.getElementById('resetBtn');
     var ocrBtn = document.getElementById('ocrBtn');
+    var reviewLinesBtn = document.getElementById('reviewLinesBtn');
+    var applyReviewBtn = document.getElementById('applyReviewBtn');
+    var cancelReviewBtn = document.getElementById('cancelReviewBtn');
 
     var originInput = document.getElementById('origin');
     var destinationInput = document.getElementById('destination');
@@ -475,13 +443,85 @@
     var destinationPoint = null;
     var stops = []; // { originalIndex, rawText, lat, lon, status }
 
+    // --- Review Lines (edit + delete junk before geocoding) ---
+    var reviewPanel = document.getElementById('reviewPanel');
+    var reviewListEl = document.getElementById('reviewList');
+    var reviewLines = [];
+    var reviewAppendMode = false; // true when opened from OCR (append), false when opened from textarea (replace)
+
+    function renderReviewList() {
+      reviewListEl.innerHTML = '';
+      reviewLines.forEach(function (line, idx) {
+        var li = document.createElement('li');
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'review-line-input';
+        input.value = line;
+        input.setAttribute('data-line-index', idx);
+
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'small-btn danger';
+        delBtn.textContent = 'Delete';
+        delBtn.setAttribute('data-line-index', idx);
+
+        li.appendChild(input);
+        li.appendChild(delBtn);
+        reviewListEl.appendChild(li);
+      });
+      reviewPanel.style.display = 'block';
+    }
+
+    reviewListEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-line-index]');
+      if (!btn) return;
+      var idx = parseInt(btn.getAttribute('data-line-index'), 10);
+      reviewLines.splice(idx, 1);
+      renderReviewList();
+    });
+
+    function openReviewFromLines(lines, appendMode) {
+      reviewLines = lines.slice();
+      reviewAppendMode = appendMode;
+      renderReviewList();
+    }
+
+    reviewLinesBtn.addEventListener('click', function () {
+      var textarea = document.getElementById('addresses');
+      var lines = textarea.value.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(function (l) { return l.length > 0; });
+      if (lines.length === 0) {
+        statusEl.textContent = 'Nothing in the address box to review yet.';
+        return;
+      }
+      openReviewFromLines(lines, false);
+      statusEl.textContent = 'Edit or delete lines, then tap "Use These Lines."';
+    });
+
+    applyReviewBtn.addEventListener('click', function () {
+      var textarea = document.getElementById('addresses');
+      var inputs = reviewListEl.querySelectorAll('input.review-line-input');
+      var editedLines = Array.prototype.map.call(inputs, function (inp) {
+        return inp.value.trim();
+      }).filter(function (l) { return l.length > 0; });
+
+      if (reviewAppendMode) {
+        var existing = textarea.value.trim();
+        var combined = editedLines.join('\n');
+        textarea.value = existing ? (existing + '\n' + combined) : combined;
+      } else {
+        textarea.value = editedLines.join('\n');
+      }
+      reviewPanel.style.display = 'none';
+      statusEl.textContent = 'Address list updated. Ready for Geocode & Check.';
+    });
+
+    cancelReviewBtn.addEventListener('click', function () {
+      reviewPanel.style.display = 'none';
+      statusEl.textContent = 'Review cancelled — no changes made.';
+    });
+
     // --- OCR (multi-image) ---
-    // iOS Safari caps canvas size at roughly 4096px per dimension and
-    // ~16.7 megapixels total. Instead of relying on one giant stitched
-    // screenshot, the file input now accepts multiple images (e.g. several
-    // shorter screenshots covering the full route). Each image is OCR'd
-    // separately and its text appended into the textarea, so you never
-    // hit the canvas ceiling.
     var MAX_DIMENSION = 4000;
     var MAX_TOTAL_PIXELS = 16000000;
 
@@ -538,7 +578,11 @@
 
     ocrBtn.addEventListener('click', function () {
       var fileInput = document.getElementById('screenshot');
-      var textarea = document.getElementById('addresses');
+
+      if (location.protocol === 'file:') {
+        statusEl.textContent = 'OCR can\'t run when the page is opened directly from a file. Host it over https:// and retry.';
+        return;
+      }
 
       if (!fileInput.files || fileInput.files.length === 0) {
         statusEl.textContent = 'Select one or more screenshots first.';
@@ -554,39 +598,40 @@
 
       (async function () {
         var worker;
-        var combinedSections = [];
+        var allLines = [];
         var failCount = 0;
 
         try {
-          worker = await Tesseract.createWorker('eng');
+          worker = await Tesseract.createWorker('eng', 1, {
+            workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
+            corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core-simd.wasm.js'
+          });
 
           for (var i = 0; i < files.length; i++) {
             statusEl.textContent = 'Running OCR on image ' + (i + 1) + ' of ' + files.length + '…';
             var outcome = await ocrSingleFile(files[i], worker);
             if (outcome.ok && outcome.text.trim()) {
-              combinedSections.push(outcome.text.trim());
+              var lines = outcome.text.split(/\r?\n/)
+                .map(function (l) { return l.trim(); })
+                .filter(function (l) { return l.length > 0; });
+              allLines = allLines.concat(lines);
             } else if (!outcome.ok) {
               failCount++;
             }
           }
 
-          var combinedText = combinedSections.join('\n');
-          if (combinedText) {
-            var existing = textarea.value.trim();
-            textarea.value = existing ? (existing + '\n' + combinedText) : combinedText;
-          }
-
-          if (failCount === 0 && combinedSections.length === files.length) {
-            statusEl.textContent = 'OCR complete on ' + files.length + ' image(s). Clean up the text so each stop is on its own line.';
-          } else if (combinedSections.length > 0) {
-            statusEl.textContent = 'OCR complete on ' + combinedSections.length + ' of ' + files.length +
-              ' image(s) (' + failCount + ' failed). Clean up the text, then re-try any missing images individually.';
+          if (allLines.length > 0) {
+            openReviewFromLines(allLines, true);
+            var msg = 'OCR complete on ' + files.length + ' image(s). Edit or delete lines below, then tap "Use These Lines."';
+            if (failCount > 0) msg += ' (' + failCount + ' image(s) failed to process.)';
+            statusEl.textContent = msg;
           } else {
             statusEl.textContent = 'OCR found no readable text in any image. Try clearer or shorter screenshots.';
           }
         } catch (e) {
-          console.error(e);
-          statusEl.textContent = 'OCR failed to start. Check your internet connection and try again.';
+          console.error('OCR worker init/run failed:', e);
+          var detail = (e && e.message) ? (' (' + e.message + ')') : '';
+          statusEl.textContent = 'OCR failed to start' + detail + '. Make sure this page is hosted over https:// and try again.';
         } finally {
           if (worker) {
             try { await worker.terminate(); } catch (e2) { /* ignore */ }
@@ -629,8 +674,6 @@
       return stop;
     }
 
-    // Nominatim's public usage policy caps requests at roughly 1/second.
-    // We geocode sequentially and pause between calls to stay within that limit.
     async function geocodeAllStops(stopsArr) {
       for (var i = 0; i < stopsArr.length; i++) {
         var stop = stopsArr[i];
@@ -684,9 +727,14 @@
       return { origin: originPt, stops: orderedStops, destination: destinationPt };
     }
 
-    // --- Validation table ---
+    // --- Validation table (with Delete) ---
     var validationPanel = document.getElementById('validationPanel');
     var validationTableBody = document.querySelector('#validationTable tbody');
+
+    function syncTextareaFromStops() {
+      var textarea = document.getElementById('addresses');
+      textarea.value = stops.map(function (s) { return s.rawText; }).join('\n');
+    }
 
     function renderValidationTable() {
       validationTableBody.innerHTML = '';
@@ -699,30 +747,49 @@
           '<td><input type="text" value="' + escapeHtml(stop.rawText) +
           '" data-stop-index="' + idx + '"></td>' +
           '<td>' + statusText + '</td>' +
-          '<td><button type="button" class="small-btn" data-retry-index="' + idx + '">Retry</button></td>';
+          '<td>' +
+          '<button type="button" class="small-btn" data-retry-index="' + idx + '">Retry</button>' +
+          '<button type="button" class="small-btn danger" data-delete-index="' + idx + '">Delete</button>' +
+          '</td>';
         validationTableBody.appendChild(tr);
       });
-      validationPanel.style.display = 'block';
+      validationPanel.style.display = stops.length > 0 ? 'block' : 'none';
     }
 
     validationTableBody.addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-retry-index]');
-      if (!btn) return;
-      var idx = parseInt(btn.getAttribute('data-retry-index'), 10);
-      var input = validationTableBody.querySelector('input[data-stop-index="' + idx + '"]');
-      var stop = stops[idx];
-      stop.rawText = input.value.trim();
-      stop.status = 'pending';
-      btn.disabled = true;
-      statusEl.textContent = 'Retrying geocode for original #' + stop.originalIndex + '…';
-      (async function () {
-        await geocodeStop(stop);
+      var retryBtn = e.target.closest('button[data-retry-index]');
+      var deleteBtn = e.target.closest('button[data-delete-index]');
+
+      if (deleteBtn) {
+        var delIdx = parseInt(deleteBtn.getAttribute('data-delete-index'), 10);
+        var removed = stops[delIdx];
+        stops.splice(delIdx, 1);
         renderValidationTable();
-        var ready = checkReadyToOptimize();
-        statusEl.textContent = ready
-          ? 'Geocode retry complete. All addresses look good — optimize when ready.'
-          : 'Geocode retry complete. Some rows still need attention before optimizing.';
-      })();
+        syncTextareaFromStops();
+        var readyAfterDelete = checkReadyToOptimize();
+        statusEl.textContent = 'Removed original #' + removed.originalIndex + ' from the list.' +
+          (readyAfterDelete ? ' All remaining addresses look good.' : ' Some rows still need attention.');
+        return;
+      }
+
+      if (retryBtn) {
+        var idx = parseInt(retryBtn.getAttribute('data-retry-index'), 10);
+        var input = validationTableBody.querySelector('input[data-stop-index="' + idx + '"]');
+        var stop = stops[idx];
+        stop.rawText = input.value.trim();
+        stop.status = 'pending';
+        retryBtn.disabled = true;
+        statusEl.textContent = 'Retrying geocode for original #' + stop.originalIndex + '…';
+        (async function () {
+          await geocodeStop(stop);
+          renderValidationTable();
+          syncTextareaFromStops();
+          var ready = checkReadyToOptimize();
+          statusEl.textContent = ready
+            ? 'Geocode retry complete. All addresses look good — optimize when ready.'
+            : 'Geocode retry complete. Some rows still need attention before optimizing.';
+        })();
+      }
     });
 
     // --- Geocode & Check button ---
@@ -790,7 +857,7 @@
         if (issues.length || badStops.length) {
           var msg = 'Geocoding complete, but issues found: ';
           if (issues.length) msg += issues.join(', ') + '. ';
-          if (badStops.length) msg += badStops.length + ' stop(s) need attention below.';
+          if (badStops.length) msg += badStops.length + ' stop(s) need attention below — fix, retry, or delete them.';
           statusEl.textContent = msg;
         } else {
           statusEl.textContent = 'All addresses look good. Optimize the route when ready.';
@@ -809,7 +876,7 @@
 
     optimizeBtn.addEventListener('click', function () {
       if (!checkReadyToOptimize()) {
-        statusEl.textContent = 'Fix all address issues before optimizing.';
+        statusEl.textContent = 'Fix or delete all problem rows before optimizing.';
         return;
       }
 
@@ -868,7 +935,9 @@
       originPoint = null;
       destinationPoint = null;
       stops = [];
+      reviewLines = [];
       validationPanel.style.display = 'none';
+      reviewPanel.style.display = 'none';
       resultsPanel.style.display = 'none';
       resultsList.innerHTML = '';
       summaryEl.textContent = '';
@@ -910,14 +979,8 @@
       var allPoints = [route.origin].concat(route.stops).concat([route.destination]);
       var latlngs = allPoints.map(function (p) { return [p.lat, p.lon]; });
 
-      if (routeLayer) {
-        routeLayer.remove();
-        routeLayer = null;
-      }
-      if (markerLayerGroup) {
-        markerLayerGroup.remove();
-        markerLayerGroup = null;
-      }
+      if (routeLayer) { routeLayer.remove(); routeLayer = null; }
+      if (markerLayerGroup) { markerLayerGroup.remove(); markerLayerGroup = null; }
 
       markerLayerGroup = L.layerGroup().addTo(map);
 
