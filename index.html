@@ -266,19 +266,62 @@
     .results-actions button { font-size: 0.8rem; }
 
     @media print {
-      body { background: #ffffff; color: #000000; }
-      .app-shell { max-width: 800px; }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        color-scheme: light;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .app-shell {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
       #map { display: none !important; }
+
       .app-header,
       #routeForm,
       #validationPanel,
       #reviewPanel,
-      .results-actions { display: none !important; }
-      .app { box-shadow: none; border: none; padding: 0; }
-      #resultsPanel { background: #ffffff; border: none; color: #000000; }
-      #resultsPanel h2,
-      #resultsPanel p,
-      #resultsPanel li { color: #000000 !important; }
+      .results-actions {
+        display: none !important;
+      }
+
+      .app {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        background: transparent !important;
+      }
+
+      #resultsPanel {
+        background: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Force every element inside the results panel to solid black text.
+         Safari's print rendering can leave nested elements (label, strong,
+         checkbox text) at a faded/light color even when the parent element
+         is overridden, so a universal selector guarantees nothing is missed. */
+      #resultsPanel,
+      #resultsPanel * {
+        color: #000000 !important;
+        background: transparent !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      #resultsPanel input[type="checkbox"] {
+        accent-color: #000000 !important;
+        border: 1px solid #000000 !important;
+      }
+
+      .results-list {
+        text-align: left;
+      }
     }
   </style>
 </head>
