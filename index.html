@@ -242,13 +242,15 @@
       gap: var(--space-2);
       padding: var(--space-2) 0;
       border-bottom: 1px solid rgba(55,65,81,0.6);
+      flex-wrap: wrap;
     }
 
     #reviewList li:last-child { border-bottom: none; }
 
     .review-line-input {
-      flex: 1;
+      flex: 1 1 100%;
       min-width: 0;
+      margin-bottom: var(--space-1);
     }
 
     #map {
@@ -338,7 +340,7 @@
 
           <div id="reviewPanel" class="panel" style="display:none;">
             <h2>Review OCR Lines</h2>
-            <p>Edit any line to fix an obvious mistake (wrong number, mangled street name), or tap Delete to remove junk (timestamps, headers, stop counts) before it ever gets geocoded. Tap "Use These Lines" when ready.</p>
+            <p>Edit a line to fix a mistake, tap "Merge ↓" if the street address and city landed on two separate lines, or tap Delete to remove junk (timestamps, headers, stop counts). Tap "Use These Lines" when ready.</p>
             <ul id="reviewList"></ul>
             <div class="buttons" style="margin-top: var(--space-2);">
               <button type="button" id="applyReviewBtn">Use These Lines</button>
@@ -443,11 +445,18 @@
     var destinationPoint = null;
     var stops = []; // { originalIndex, rawText, lat, lon, status }
 
-    // --- Review Lines (edit + delete junk before geocoding) ---
+    // --- Review Lines (edit + merge + delete before geocoding) ---
     var reviewPanel = document.getElementById('reviewPanel');
     var reviewListEl = document.getElementById('reviewList');
     var reviewLines = [];
     var reviewAppendMode = false; // true when opened from OCR (append), false when opened from textarea (replace)
+
+    function syncReviewLinesFromInputs() {
+      var inputs = reviewListEl.querySelectorAll('input.review-line-input');
+      reviewLines = Array.prototype.map.call(inputs, function (inp) {
+        return inp.value;
+      });
+    }
 
     function renderReviewList() {
       reviewListEl.innerHTML = '';
@@ -460,6 +469,15 @@
         input.value = line;
         input.setAttribute('data-line-index', idx);
 
+        var mergeBtn = document.createElement('button');
+        mergeBtn.type = 'button';
+        mergeBtn.className = 'small-btn secondary';
+        mergeBtn.textContent = 'Merge \u2193';
+        mergeBtn.setAttribute('data-merge-index', idx);
+        if (idx === reviewLines.length - 1) {
+          mergeBtn.disabled = true;
+        }
+
         var delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.className = 'small-btn danger';
@@ -467,6 +485,7 @@
         delBtn.setAttribute('data-line-index', idx);
 
         li.appendChild(input);
+        li.appendChild(mergeBtn);
         li.appendChild(delBtn);
         reviewListEl.appendChild(li);
       });
@@ -474,11 +493,28 @@
     }
 
     reviewListEl.addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-line-index]');
-      if (!btn) return;
-      var idx = parseInt(btn.getAttribute('data-line-index'), 10);
-      reviewLines.splice(idx, 1);
-      renderReviewList();
+      var delBtn = e.target.closest('button[data-line-index]');
+      var mergeBtn = e.target.closest('button[data-merge-index]');
+
+      if (mergeBtn) {
+        syncReviewLinesFromInputs();
+        var idx = parseInt(mergeBtn.getAttribute('data-merge-index'), 10);
+        if (idx < reviewLines.length - 1) {
+          var current = reviewLines[idx].trim();
+          var next = reviewLines[idx + 1].trim();
+          reviewLines[idx] = current && next ? (current + ', ' + next) : (current || next);
+          reviewLines.splice(idx + 1, 1);
+          renderReviewList();
+        }
+        return;
+      }
+
+      if (delBtn) {
+        syncReviewLinesFromInputs();
+        var delIdx = parseInt(delBtn.getAttribute('data-line-index'), 10);
+        reviewLines.splice(delIdx, 1);
+        renderReviewList();
+      }
     });
 
     function openReviewFromLines(lines, appendMode) {
@@ -495,15 +531,13 @@
         return;
       }
       openReviewFromLines(lines, false);
-      statusEl.textContent = 'Edit or delete lines, then tap "Use These Lines."';
+      statusEl.textContent = 'Edit, merge, or delete lines, then tap "Use These Lines."';
     });
 
     applyReviewBtn.addEventListener('click', function () {
+      syncReviewLinesFromInputs();
       var textarea = document.getElementById('addresses');
-      var inputs = reviewListEl.querySelectorAll('input.review-line-input');
-      var editedLines = Array.prototype.map.call(inputs, function (inp) {
-        return inp.value.trim();
-      }).filter(function (l) { return l.length > 0; });
+      var editedLines = reviewLines.map(function (l) { return l.trim(); }).filter(function (l) { return l.length > 0; });
 
       if (reviewAppendMode) {
         var existing = textarea.value.trim();
@@ -622,7 +656,7 @@
 
           if (allLines.length > 0) {
             openReviewFromLines(allLines, true);
-            var msg = 'OCR complete on ' + files.length + ' image(s). Edit or delete lines below, then tap "Use These Lines."';
+            var msg = 'OCR complete on ' + files.length + ' image(s). Edit, merge split lines, or delete junk below, then tap "Use These Lines."';
             if (failCount > 0) msg += ' (' + failCount + ' image(s) failed to process.)';
             statusEl.textContent = msg;
           } else {
