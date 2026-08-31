@@ -328,6 +328,7 @@
               <textarea id="addresses" placeholder="123 Main St, City, ST 12345
 456 Oak Ave, City, ST 23456
 ..."></textarea>
+              <p class="hint">If an address doesn't geocode, it's usually because OpenStreetMap's data doesn't cover it — the app automatically retries with the US Census Geocoder before marking it as not found.</p>
             </div>
 
             <div class="buttons">
@@ -449,7 +450,7 @@
     var reviewPanel = document.getElementById('reviewPanel');
     var reviewListEl = document.getElementById('reviewList');
     var reviewLines = [];
-    var reviewAppendMode = false; // true when opened from OCR (append), false when opened from textarea (replace)
+    var reviewAppendMode = false;
 
     function syncReviewLinesFromInputs() {
       var inputs = reviewListEl.querySelectorAll('input.review-line-input');
@@ -675,8 +676,8 @@
       })();
     });
 
-    // --- Geocoding helpers ---
-    async function geocodeQuery(query) {
+    // --- Geocoding: Nominatim primary, US Census Geocoder fallback ---
+    async function geocodeViaNominatim(query) {
       var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&q=' +
                   encodeURIComponent(query);
       var res = await fetch(url, { headers: { 'Accept': 'application/json' } });
@@ -684,6 +685,62 @@
       var data = await res.json();
       if (!Array.isArray(data) || data.length === 0) return null;
       return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+    }
+
+    // The Census Geocoder API does not support CORS, so a direct fetch()
+    // would be blocked by the browser. JSONP (a <script> tag whose src
+    // triggers a callback) is not subject to CORS and works around this.
+    function geocodeViaCensusJSONP(query) {
+      return new Promise(function (resolve) {
+        var callbackName = 'censusGeocodeCb_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+        var script = document.createElement('script');
+        var timeoutId;
+
+        function cleanup() {
+          try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+          if (script.parentNode) script.parentNode.removeChild(script);
+          clearTimeout(timeoutId);
+        }
+
+        window[callbackName] = function (data) {
+          cleanup();
+          try {
+            var matches = data && data.result && data.result.addressMatches;
+            if (matches && matches.length > 0 && matches[0].coordinates) {
+              resolve({ lat: matches[0].coordinates.y, lon: matches[0].coordinates.x });
+            } else {
+              resolve(null);
+            }
+          } catch (e) {
+            resolve(null);
+          }
+        };
+
+        timeoutId = setTimeout(function () {
+          cleanup();
+          resolve(null);
+        }, 6000);
+
+        script.onerror = function () {
+          cleanup();
+          resolve(null);
+        };
+
+        script.src = 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=' +
+          encodeURIComponent(query) + '&benchmark=Public_AR_Current&format=jsonp&callback=' + callbackName;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function geocodeQuery(query) {
+      var result = await geocodeViaNominatim(query);
+      if (result) return result;
+      try {
+        result = await geocodeViaCensusJSONP(query);
+      } catch (e) {
+        result = null;
+      }
+      return result;
     }
 
     async function geocodePoint(label, query) {
